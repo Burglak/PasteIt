@@ -1,0 +1,93 @@
+﻿@model PasteIt.Models.Snippet
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="container mt-5">
+    <div class="card" style="background-color: #495057; color: white;">
+        <div class="card-header" style="background-color: #343a40;">
+            <h4 class="mb-0">Snippet Information</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <!-- title - show only if not null and not empty -->
+                @if (!string.IsNullOrEmpty(Model.Title))
+                {
+                    <dt class="col-sm-3">Title</dt>
+                    <dd class="col-sm-9">
+                        <input type="text" class="form-control bg-secondary text-white" value="@Model.Title" readonly />
+                    </dd>
+                }
+
+                <!-- text -->
+                <dt class="col-sm-3">Context</dt>
+                <dd class="col-sm-9">
+                    <textarea id="contextText" class="form-control bg-secondary text-white" readonly>@Model.Text</textarea>
+                </dd>
+
+                <!-- view count -->
+                <dt class="col-sm-3">View Count</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.ViewCount)</dd>
+
+                <!-- expiration -->
+                <dt class="col-sm-3">Expires In</dt>
+                <dd class="col-sm-9">
+                    @if (Model.ExpiresAt > DateTime.Now)
+                    {
+                        var remainingTime = Model.ExpiresAt - DateTime.Now;
+                        string displayTime;
+
+                        if (remainingTime.TotalHours < 24)
+                        {
+                            displayTime = $"{remainingTime.TotalHours:F0} hours";  // time in hours
+                        }
+                        else
+                        {
+                            displayTime = $"{remainingTime.Days} days";  // time in days
+                        }
+
+                        @displayTime
+                    }
+                    else
+                    {
+                        <span>Expired</span>
+                    }
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-3">
+        <button class="btn btn-outline-light" onclick="shareLink()">Share</button>
+        <button class="btn btn-outline-light" onclick="copyText()">Copy to Clipboard</button>
+    </div>
+</div>
+
+
+
+
+@section Scripts {
+    <script>
+        // Function to copy context text to clipboard
+        function copyText() {
+            var copyText = document.getElementById("contextText");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+            document.execCommand("copy");
+            alert("Context copied to clipboard!");
+        }
+
+        // Function to copy the current page link to clipboard
+        function shareLink() {
+            var link = window.location.href;  // Get the current URL
+            var textarea = document.createElement("textarea");
+            textarea.value = link;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+            alert("Link copied to clipboard!");
+        }
+    </script>
+}
